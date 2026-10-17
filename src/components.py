@@ -42,3 +42,49 @@ def render_sidebar(df: pd.DataFrame) -> pd.DataFrame:
         ]
 
     return filtered
+
+def render_kpis(df: pd.DataFrame):
+  k1, k2, k3, k4 = st.columns(4)
+
+  with k1:
+    st.markdown(
+        f"""<div class="metric-card">
+            <div class="metric-label">Filtered perfumes</div>
+            <div class="metric-value" style="color: #38bdf8;">{len(df):,}</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+  with k2:
+    mean_val = df["rating_value"].mean() if not df.empty else 0
+    st.markdown(
+        f"""<div class="metric-card">
+            <div class="metric-label">Average rating</div>
+            <div class="metric-value" style="color: #fbbf24;">{mean_val:.2f} / 5.0</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+  with k3:
+    top_acc = (
+        df["mainaccord1"].value_counts().index[0].title()
+        if not df.empty
+        else "-"
+    )
+    st.markdown(
+        f"""<div class="metric-card">
+            <div class="metric-label">Dominant accord</div>
+            <div class="metric-value" style="color: #ff4b72;">{top_acc}</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+  with k4:
+    votes = df["rating_count"].sum() if not df.empty else 0
+    st.markdown(
+        f"""<div class="metric-card">
+            <div class="metric-label">Rating count</div>
+            <div class="metric-value" style="color: #a78bfa;">{votes:,}</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
