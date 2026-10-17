@@ -1,0 +1,61 @@
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+
+PLOT_BG = "#1a1d29"
+PAPER_BG = "#0f111a"
+TEXT_COLOR = "#f8fafc"
+GRID_COLOR = "#2d3248"
+
+def create_radar_chart(df: pd.DataFrame) -> go.Figure:
+  top_accords = df["mainaccord1"].value_counts().head(7).index.tolist()
+  if len(top_accords) < 3:
+    return go.Figure()
+
+  crosstab_res = pd.crosstab(
+      df["gender"], df["mainaccord1"], normalize="index"
+  )
+  radar_cols = [c for c in top_accords if c in crosstab_res.columns]
+
+  fig = go.Figure()
+  palette = {"women": "#ff4b72", "men": "#38bdf8", "unisex": "#34d399"}
+
+  for g in df["gender"].unique():
+    if g in crosstab_res.index:
+      vals = crosstab_res.loc[g, radar_cols].tolist()
+      vals.append(vals[0])
+      theta_labels = [c.title() for c in radar_cols] + [radar_cols[0].title()]
+
+      fig.add_trace(
+          go.Scatterpolar(
+              r=vals,
+              theta=theta_labels,
+              fill="toself",
+              name=g.capitalize(),
+              line=dict(color=palette.get(g, "#cbd5e1"), width=2),
+              opacity=0.35,
+          )
+      )
+
+  fig.update_layout(
+      title=dict(
+          text="Scent profile",
+          font=dict(size=15, color=TEXT_COLOR),
+      ),
+      polar=dict(
+          radialaxis=dict(
+              visible=True, showticklabels=False, gridcolor=GRID_COLOR
+          ),
+          angularaxis=dict(gridcolor=GRID_COLOR),
+          bgcolor=PLOT_BG,
+      ),
+      paper_bgcolor=PAPER_BG,
+      font=dict(color=TEXT_COLOR),
+      margin=dict(l=30, r=30, t=40, b=30),
+      legend=dict(
+          orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5
+      ),
+      height=380,
+  )
+  return fig
