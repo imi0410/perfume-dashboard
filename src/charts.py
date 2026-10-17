@@ -59,3 +59,38 @@ def create_radar_chart(df: pd.DataFrame) -> go.Figure:
       height=380,
   )
   return fig
+
+def create_heatmap(df: pd.DataFrame) -> go.Figure:
+  top_accs = df["mainaccord1"].value_counts().head(8).index.tolist()
+  sub_df = df[
+      df["mainaccord1"].isin(top_accs)
+      & df["mainaccord2"].isin(top_accs)
+      & (df["mainaccord2"] != "None")
+  ]
+
+  if sub_df.empty:
+    return go.Figure()
+
+  matrix = pd.crosstab(sub_df["mainaccord1"], sub_df["mainaccord2"])
+  fig = px.imshow(
+      matrix,
+      labels=dict(
+          x="Secondary accord", y="Main accord", color="Number of perfumes"
+      ),
+      x=[x.title() for x in matrix.columns],
+      y=[y.title() for y in matrix.index],
+      color_continuous_scale="Viridis",
+      text_auto=True,
+  )
+  fig.update_layout(
+      title=dict(
+          text="Scent accord combinations",
+          font=dict(size=15, color=TEXT_COLOR),
+      ),
+      paper_bgcolor=PAPER_BG,
+      plot_bgcolor=PLOT_BG,
+      font=dict(color=TEXT_COLOR),
+      margin=dict(l=30, r=30, t=40, b=30),
+      height=380,
+  )
+  return fig
