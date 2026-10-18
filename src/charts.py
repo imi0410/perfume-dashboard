@@ -131,3 +131,46 @@ def create_area_chart(df: pd.DataFrame) -> go.Figure:
       height=380,
   )
   return fig
+
+def create_scatter_plot(df: pd.DataFrame) -> go.Figure:
+  brand_stats = (
+      df.groupby("brand")
+      .agg(
+          count=("perfume", "count"),
+          avg_rating=("rating_value", "mean"),
+          rating_count=("rating_count", "sum"),
+      )
+      .reset_index()
+  )
+
+  brand_filtered = brand_stats[brand_stats["count"] >= 3]
+
+  fig = px.scatter(
+      brand_filtered,
+      x="count",
+      y="avg_rating",
+      size="rating_count",
+      color="avg_rating",
+      hover_name="brand",
+      labels={
+          "count": "Number of released perfumes",
+          "avg_rating": "",
+          "rating count": "rating count",
+      },
+      color_continuous_scale="Plasma",
+      size_max=32,
+  )
+  fig.update_layout(
+      title=dict(
+          text="Positioning of brands",
+          font=dict(size=15, color=TEXT_COLOR),
+      ),
+      paper_bgcolor=PAPER_BG,
+      plot_bgcolor=PLOT_BG,
+      font=dict(color=TEXT_COLOR),
+      xaxis=dict(gridcolor=GRID_COLOR),
+      yaxis=dict(gridcolor=GRID_COLOR),
+      margin=dict(l=30, r=30, t=40, b=30),
+      height=380,
+  )
+  return fig
