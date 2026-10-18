@@ -1,7 +1,7 @@
 import streamlit as st
 from src.data_loader import load_cleaned_data
 from src.components import render_sidebar, render_kpis
-from src.charts import create_radar_chart, create_radar_chart, create_heatmap
+from src.charts import create_radar_chart, create_heatmap, create_area_chart
 
 st.set_page_config(page_title="Perfume dashboard", layout="wide", page_icon="assets/perfume.png")
 st.title("Perfume Analytics")
@@ -9,6 +9,18 @@ st.title("Perfume Analytics")
 st.markdown(
     """
 <style>
+    h1 {
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+            margin-top: 0px !important;
+            margin-bottom: 0px !important;
+        }
+    #perfume-analytics{
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+            margin-top: 0px !important;
+            margin-bottom: 0px !important;
+    }
     .metric-card {
         background-color: #1a1d29;
         border: 1px solid #2d3248;
@@ -32,3 +44,7 @@ with c1:
   st.plotly_chart(create_radar_chart(filtered_df), use_container_width=True)
 with c2:
   st.plotly_chart(create_heatmap(filtered_df), use_container_width=True)
+
+c3, c4 = st.columns(2)
+with c3:
+  st.plotly_chart(create_area_chart(filtered_df), use_container_width=True)

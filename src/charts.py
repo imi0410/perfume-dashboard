@@ -3,10 +3,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+
 PLOT_BG = "#1a1d29"
 PAPER_BG = "#0f111a"
 TEXT_COLOR = "#f8fafc"
 GRID_COLOR = "#2d3248"
+
 
 def create_radar_chart(df: pd.DataFrame) -> go.Figure:
   top_accords = df["mainaccord1"].value_counts().head(7).index.tolist()
@@ -40,7 +42,7 @@ def create_radar_chart(df: pd.DataFrame) -> go.Figure:
 
   fig.update_layout(
       title=dict(
-          text="Scent profile",
+          text="Scent Profile for Target Audience",
           font=dict(size=15, color=TEXT_COLOR),
       ),
       polar=dict(
@@ -59,6 +61,7 @@ def create_radar_chart(df: pd.DataFrame) -> go.Figure:
       height=380,
   )
   return fig
+
 
 def create_heatmap(df: pd.DataFrame) -> go.Figure:
   top_accs = df["mainaccord1"].value_counts().head(8).index.tolist()
@@ -84,13 +87,47 @@ def create_heatmap(df: pd.DataFrame) -> go.Figure:
   )
   fig.update_layout(
       title=dict(
-          text="Scent accord combinations",
+          text="Scent Accord Combinations",
           font=dict(size=15, color=TEXT_COLOR),
       ),
       paper_bgcolor=PAPER_BG,
       plot_bgcolor=PLOT_BG,
       font=dict(color=TEXT_COLOR),
       margin=dict(l=30, r=30, t=40, b=30),
+      height=380,
+  )
+  return fig
+
+def create_area_chart(df: pd.DataFrame) -> go.Figure:
+  yearly = (
+      df.groupby(["year", "mainaccord1"]).size().reset_index(name="db")
+  )
+  fig = px.area(
+      yearly,
+      x="year",
+      y="db",
+      color="mainaccord1",
+      labels={
+          "year": "Release date",
+          "darab": "Number of perfumes",
+          "mainaccord1": "",
+      },
+      color_discrete_sequence=px.colors.qualitative.Safe,
+  )
+  fig.update_layout(
+      title=dict(
+          text="Evolution of Fragrance Trends Over Time",
+          font=dict(size=15, color=TEXT_COLOR),
+      ),
+      paper_bgcolor=PAPER_BG,
+      plot_bgcolor=PLOT_BG,
+      font=dict(color=TEXT_COLOR),
+      xaxis=dict(gridcolor=GRID_COLOR),
+      yaxis=dict(gridcolor=GRID_COLOR),
+      margin=dict(l=30, r=30, t=40, b=30),
+      legend=dict(
+          orientation="h", yanchor="bottom", y=-0.35, xanchor="center", x=0.5
+      ),
       height=380,
   )
   return fig
