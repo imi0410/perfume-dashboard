@@ -7,87 +7,66 @@ PLOT_BG = "rgba(0,0,0,0)"
 PAPER_BG = "rgba(0,0,0,0)"
 TEXT_COLOR = "#2b1f1d"
 GRID_COLOR = "rgba(180, 160, 160, 0.35)"
-FIXED_ACCORDS = [
-    "citrus",
-    "woody",
-    "floral",
-    "fruity",
-    "aromatic",
-    "white floral",
-    "warm spicy",
-]
 
 
 def create_radar_chart(df: pd.DataFrame) -> go.Figure:
+  top_accords = df["mainaccord1"].value_counts().head(7).index.tolist()
+  if len(top_accords) < 3:
+    return go.Figure()
+
   crosstab_res = pd.crosstab(
       df["gender"], df["mainaccord1"], normalize="index"
   )
-  crosstab_res = crosstab_res.reindex(columns=FIXED_ACCORDS, fill_value=0)
+  radar_cols = [c for c in top_accords if c in crosstab_res.columns]
 
   fig = go.Figure()
+  palette = {"women": "#b26871", "men": "#655967", "unisex": "#c89d7c"}
 
-  palette = {
-      "women": "#e05a5a",
-      "men": "#1e88e5",
-      "unisex": "#43a047",
-  }
-
-  for g in ["women", "men", "unisex"]:
+  for g in df["gender"].unique():
     if g in crosstab_res.index:
-      vals = crosstab_res.loc[g, FIXED_ACCORDS].tolist()
+      vals = crosstab_res.loc[g, radar_cols].tolist()
       vals.append(vals[0])
-      theta_labels = [c.title() for c in FIXED_ACCORDS] + [
-          FIXED_ACCORDS[0].title()
-      ]
-
-      color = palette.get(g, "#555555")
+      theta_labels = [c.title() for c in radar_cols] + [radar_cols[0].title()]
 
       fig.add_trace(
           go.Scatterpolar(
               r=vals,
               theta=theta_labels,
+              mode="lines",
               name=g.capitalize(),
-              mode="lines+markers",
-              line=dict(color=color, width=2),
-              marker=dict(size=4, color=color),
+              line=dict(color=palette.get(g, "#887571"), width=3),
+              showlegend=True,
           )
       )
 
   fig.update_layout(
       title=dict(
           text="Scent Profile for Target Audience",
-          font=dict(size=16, color=TEXT_COLOR, family="sans-serif"),
+          font=dict(size=15, color=TEXT_COLOR, family="sans-serif"),
       ),
       polar=dict(
           radialaxis=dict(
               visible=True,
-              range=[0, 0.22],
               showticklabels=False,
-              showline=False,
-              gridcolor="rgba(180, 180, 180, 0.4)",
-              gridwidth=0.8,
+              gridcolor=GRID_COLOR,
           ),
           angularaxis=dict(
-              direction="clockwise",
-              rotation=90,
-              showline=True,
-              linecolor="rgba(160, 160, 160, 0.6)",
-              gridcolor="rgba(180, 180, 180, 0.4)",
-              gridwidth=0.8,
-              tickfont=dict(color=TEXT_COLOR, size=11, family="sans-serif"),
+              gridcolor=GRID_COLOR,
+              tickfont=dict(color=TEXT_COLOR, size=11),
           ),
-          bgcolor="rgba(0, 0, 0, 0)",
+          bgcolor="rgba(255, 255, 255, 0.3)",
       ),
       paper_bgcolor=PAPER_BG,
       font=dict(color=TEXT_COLOR),
-      margin=dict(l=35, r=35, t=45, b=35),
+      margin=dict(l=35, r=35, t=45, b=45),
       legend=dict(
           orientation="h",
           yanchor="bottom",
-          y=-0.22,
+          y=-0.25,
           xanchor="center",
           x=0.5,
           font=dict(color=TEXT_COLOR, size=12),
+          traceorder="normal",
       ),
       height=380,
   )
@@ -174,7 +153,7 @@ def create_area_chart(df: pd.DataFrame) -> go.Figure:
       labels={
           "year": "Release date",
           "count": "Number of perfumes",
-          "mainaccord1": "Accord",
+          "mainaccord1": " ",
       },
       color_discrete_sequence=[
           "#b26871",
@@ -286,7 +265,7 @@ def create_scatter_plot(df: pd.DataFrame) -> go.Figure:
             gridcolor=GRID_COLOR,
             tickfont=dict(color=TEXT_COLOR, size=11),
             title=dict(
-                text="Number of released perfumes (log scale)",
+                text="Number of released perfumes",
                 font=dict(color=TEXT_COLOR, size=12),
             ),
         ),
