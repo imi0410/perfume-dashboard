@@ -242,6 +242,12 @@ def create_scatter_plot(df: pd.DataFrame) -> go.Figure:
         opacity=0.75,
     )
 
+    fig.update_xaxes(
+        tickvals=[1, 5, 10, 50, 100, 500],
+        ticktext=["1", "5", "10", "50", "100", "500"],
+        showgrid=True
+    )
+
     fig.update_traces(
         marker=dict(line=dict(width=0.8, color="#ffffff")),
         hovertemplate=(
