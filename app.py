@@ -97,6 +97,9 @@ st.title("Perfume Analytics")
 
 df = load_cleaned_data()
 filtered_df = render_sidebar(df)
+if filtered_df.empty:
+    st.warning("...🚫 🛑 ⚠️...")
+    st.stop()
 render_kpis(filtered_df)
 
 st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
