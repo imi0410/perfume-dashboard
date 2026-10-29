@@ -24,6 +24,15 @@ def render_sidebar(df: pd.DataFrame) -> pd.DataFrame:
   selected_accords = st.sidebar.multiselect(
       "Main accords", accords, default=accords[:6]
   )
+  enable_top_brands = st.sidebar.checkbox("Filter by top brands", value=False)
+  if enable_top_brands:
+      top_n_brands = st.sidebar.slider(
+          "Top brands by reviews",
+          min_value=5,
+          max_value=50,
+          value=20,
+          step=5
+      )
 
   brand_search = st.sidebar.text_input("Brand search", "")
 
@@ -34,6 +43,14 @@ def render_sidebar(df: pd.DataFrame) -> pd.DataFrame:
       & (df["gender"].isin(selected_genders))
       & (df["mainaccord1"].isin(selected_accords))
   ]
+  if enable_top_brands:
+    top_brands = (
+        df.groupby("brand")["rating_count"]
+        .sum()
+        .nlargest(top_n_brands)
+        .index
+      )
+    filtered = filtered[filtered["brand"].isin(top_brands)]
 
   if brand_search.strip():
     filtered = filtered[

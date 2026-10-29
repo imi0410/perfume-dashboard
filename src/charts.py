@@ -142,65 +142,59 @@ def create_heatmap(df: pd.DataFrame) -> go.Figure:
 
 
 def create_area_chart(df: pd.DataFrame) -> go.Figure:
-  yearly = (
-      df.groupby(["year", "mainaccord1"]).size().reset_index(name="count")
-  )
-  fig = px.area(
-      yearly,
-      x="year",
-      y="count",
-      color="mainaccord1",
-      labels={
-          "year": "Release date",
-          "count": "Number of perfumes",
-          "mainaccord1": " ",
-      },
-      color_discrete_sequence=[
-          "#b26871",
-          "#2b5c8f",
-          "#d4883b",
-          "#8c7284",
-          "#5e454b",
-          "#8090a2",
-      ],
-  )
-  fig.update_layout(
-      title=dict(
-          text="Evolution of Fragrance Trends Over Time",
-          font=dict(size=16, color=TEXT_COLOR),
-      ),
-      paper_bgcolor=PAPER_BG,
-      plot_bgcolor=PLOT_BG,
-      font=dict(color=TEXT_COLOR),
-      xaxis=dict(
-          gridcolor=GRID_COLOR,
-          tickfont=dict(color=TEXT_COLOR, size=11),
-          title=dict(
-              text="Release date",
-              font=dict(color=TEXT_COLOR, size=12),
-          ),
-      ),
-      yaxis=dict(
-          gridcolor=GRID_COLOR,
-          tickfont=dict(color=TEXT_COLOR, size=11),
-          title=dict(
-              text="Number of perfumes",
-              font=dict(color=TEXT_COLOR, size=12),
-          ),
-      ),
-      margin=dict(l=35, r=35, t=45, b=45),
-      legend=dict(
-          orientation="h",
-          yanchor="bottom",
-          y=-0.35,
-          xanchor="center",
-          x=0.5,
-          title=dict(font=dict(color=TEXT_COLOR, size=12)),
-          font=dict(color=TEXT_COLOR, size=11),
-      ),
-      height=380,
-  )
-  return fig
+    if df.empty:
+        return go.Figure()
+    chart_df = df.copy()
+    top_accs = chart_df["mainaccord1"].value_counts().head(5).index.tolist()
+    if chart_df["mainaccord1"].nunique() > 6:
+        chart_df["mainaccord1"] = chart_df["mainaccord1"].apply(
+            lambda x: x if x in top_accs else "Other"
+        )
+    yearly = (
+        chart_df.groupby(["year", "mainaccord1"]).size().reset_index(name="count")
+    )
+
+    fig = px.area(
+        yearly,
+        x="year",
+        y="count",
+        color="mainaccord1",
+        labels={
+            "year": "Release date",
+            "count": "Number of perfumes",
+            "mainaccord1": "Accord",
+        },
+        color_discrete_sequence=[
+            "#b26871",
+            "#c89d7c",
+            "#8c7284",
+            "#d9b4a7",
+            "#5e454b",
+            "#cbd5e1",
+        ],
+    )
+    fig.update_layout(
+        title=dict(
+            text="Evolution of Fragrance Trends Over Time",
+            font=dict(size=15, color=TEXT_COLOR),
+        ),
+        paper_bgcolor=PAPER_BG,
+        plot_bgcolor=PLOT_BG,
+        font=dict(color=TEXT_COLOR),
+        xaxis=dict(gridcolor=GRID_COLOR, tickfont=dict(color=TEXT_COLOR)),
+        yaxis=dict(gridcolor=GRID_COLOR, tickfont=dict(color=TEXT_COLOR)),
+        margin=dict(l=35, r=35, t=45, b=35),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.28,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=11, color=TEXT_COLOR),
+        ),
+        height=380,
+    )
+    return fig
 
 
 def create_scatter_plot(df: pd.DataFrame) -> go.Figure:
